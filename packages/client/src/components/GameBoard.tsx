@@ -4,10 +4,13 @@ import { useEffect } from 'react'
 import { uuid } from '@latticexyz/utils'
 import { useMovement } from '../hooks/useMovement'
 import { useJoinGame } from '../hooks/useJoinGame'
+import { useMapConfig } from '../hooks/useMapConfig'
 
 export const GameBoard = () => {
-  const rows = new Array(10).fill(0).map((_, i) => i)
-  const columns = new Array(10).fill(0).map((_, i) => i)
+  const { width, height } = useMapConfig()
+  console.log(width, height)
+  const rows = new Array(height).fill(0).map((_, i) => i)
+  const columns = new Array(width).fill(0).map((_, i) => i)
 
   const {
     components: { Position },
