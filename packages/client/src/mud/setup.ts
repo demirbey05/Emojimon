@@ -1,60 +1,66 @@
-import { setupMUDNetwork } from "@latticexyz/std-client";
-import { SystemTypes } from "contracts/types/SystemTypes";
-import { config } from "./config";
-import { components, clientComponents } from "./components";
-import { world } from "./world";
-import { SystemAbis } from "contracts/types/SystemAbis.mjs";
-import { EntityID } from "@latticexyz/recs";
+import { setupMUDNetwork } from '@latticexyz/std-client'
+import { SystemTypes } from 'contracts/types/SystemTypes'
+import { config } from './config'
+import { components, clientComponents } from './components'
+import { world } from './world'
+import { SystemAbis } from 'contracts/types/SystemAbis.mjs'
 import {
   createFaucetService,
   GodID as singletonEntityId,
-} from "@latticexyz/network";
-import { ethers } from "ethers";
+} from '@latticexyz/network'
+import { ethers } from 'ethers'
+import { EntityID, overridableComponent } from '@latticexyz/recs'
 
-export type SetupResult = Awaited<ReturnType<typeof setup>>;
+export type SetupResult = Awaited<ReturnType<typeof setup>>
 
 export const setup = async () => {
   const result = await setupMUDNetwork<typeof components, SystemTypes>(
     config,
     world,
     components,
-    SystemAbis
-  );
+    SystemAbis,
+  )
 
-  result.startSync();
+  result.startSync()
 
   // For LoadingState updates
-  const singletonEntity = world.registerEntity({ id: singletonEntityId });
+  const singletonEntity = world.registerEntity({ id: singletonEntityId })
 
   // Register player entity
-  const address = result.network.connectedAddress.get();
-  if (!address) throw new Error("Not connected");
+  const address = result.network.connectedAddress.get()
+  if (!address) throw new Error('Not connected')
 
-  const playerEntityId = address as EntityID;
-  const playerEntity = world.registerEntity({ id: playerEntityId });
+  const playerEntityId = address as EntityID
+  const playerEntity = world.registerEntity({ id: playerEntityId })
+
+  // Add support for optimistic rendering
+  const componentsWithOverrides = {
+    Position: overridableComponent(components.Position),
+    Player: overridableComponent(components.Player),
+  }
 
   // Request drip from faucet
   if (!config.devMode && config.faucetServiceUrl) {
-    const faucet = createFaucetService(config.faucetServiceUrl);
-    console.info("[Dev Faucet]: Player Address -> ", address);
+    const faucet = createFaucetService(config.faucetServiceUrl)
+    console.info('[Dev Faucet]: Player Address -> ', address)
 
     const requestDrip = async () => {
-      const balance = await result.network.signer.get()?.getBalance();
-      console.info(`[Dev Faucet]: Player Balance -> ${balance}`);
-      const playerIsBroke = balance?.lte(ethers.utils.parseEther("1"));
-      console.info(`[Dev Faucet]: Player is broke -> ${playerIsBroke}`);
+      const balance = await result.network.signer.get()?.getBalance()
+      console.info(`[Dev Faucet]: Player Balance -> ${balance}`)
+      const playerIsBroke = balance?.lte(ethers.utils.parseEther('1'))
+      console.info(`[Dev Faucet]: Player is broke -> ${playerIsBroke}`)
       if (playerIsBroke) {
-        console.info("[Dev Faucet]: Dripping funds to player");
+        console.info('[Dev Faucet]: Dripping funds to player')
         // Double drip
         address &&
           (await faucet?.dripDev({ address })) &&
-          (await faucet?.dripDev({ address }));
+          (await faucet?.dripDev({ address }))
       }
-    };
+    }
 
-    requestDrip();
+    requestDrip()
     // Request a drip every 20 seconds
-    setInterval(requestDrip, 20000);
+    setInterval(requestDrip, 20000)
   }
 
   return {
@@ -67,6 +73,7 @@ export const setup = async () => {
     components: {
       ...result.components,
       ...clientComponents,
+      ...componentsWithOverrides,
     },
-  };
-};
+  }
+}
