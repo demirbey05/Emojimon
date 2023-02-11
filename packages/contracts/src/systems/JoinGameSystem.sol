@@ -7,7 +7,7 @@ import { System, IWorld } from "solecs/System.sol";
 import { PlayerComponent, ID as PlayerComponentID } from "components/PlayerComponent.sol";
 import { PositionComponent, ID as PositionComponentID, Coord } from "components/PositionComponent.sol";
 import { MovableComponent, ID as MovableComponentID } from "components/MovableComponent.sol";
-
+import { MapConfigComponent, ID as MapConfigComponentID, MapConfig } from "components/MapConfigComponent.sol";
 uint256 constant ID = uint256(keccak256("system.JoinGame"));
 
 contract JoinGameSystem is System {
@@ -23,6 +23,10 @@ contract JoinGameSystem is System {
 
     PlayerComponent player = PlayerComponent(getAddressById(components, PlayerComponentID));
     require(!player.has(entityId), "Player already exists");
+
+    MapConfig memory mapConfig = MapConfigComponent(getAddressById(components, MapConfigComponentID)).getValue();
+    coord.x = (coord.x + int32(mapConfig.width)) % int32(mapConfig.width);
+    coord.y = (coord.y + int32(mapConfig.height)) % int32(mapConfig.height);
 
     player.set(entityId);
 

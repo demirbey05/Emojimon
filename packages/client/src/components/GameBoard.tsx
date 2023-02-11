@@ -19,7 +19,7 @@ export const GameBoard = () => {
 
   const playerPosition = useComponentValueStream(Position, playerEntity)
 
-  const { moveTo } = useMovement()
+  useMovement()
   const { joinGame, canJoinGame } = useJoinGame()
 
   return (
@@ -38,8 +38,6 @@ export const GameBoard = () => {
                 event.preventDefault()
                 if (canJoinGame) {
                   joinGame(x, y)
-                } else {
-                  moveTo(x, y)
                 }
               }}
             >
