@@ -17,6 +17,7 @@ export const App = () => {
     msg: 'Connecting',
     percentage: 0,
   }
+
   return (
     <div className="w-screen h-screen flex items-center justify-center">
       {loadingState.state !== SyncState.LIVE ? (
