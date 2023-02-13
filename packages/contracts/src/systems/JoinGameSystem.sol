@@ -8,6 +8,7 @@ import { PlayerComponent, ID as PlayerComponentID } from "components/PlayerCompo
 import { PositionComponent, ID as PositionComponentID, Coord } from "components/PositionComponent.sol";
 import { MovableComponent, ID as MovableComponentID } from "components/MovableComponent.sol";
 import { MapConfigComponent, ID as MapConfigComponentID, MapConfig } from "components/MapConfigComponent.sol";
+import { LibMap } from "../libraries/LibMap.sol";
 uint256 constant ID = uint256(keccak256("system.JoinGame"));
 
 contract JoinGameSystem is System {
@@ -28,6 +29,7 @@ contract JoinGameSystem is System {
     coord.x = (coord.x + int32(mapConfig.width)) % int32(mapConfig.width);
     coord.y = (coord.y + int32(mapConfig.height)) % int32(mapConfig.height);
 
+    require(LibMap.obstructions(world, coord).length == 0, "this space is obstructed");
     player.set(entityId);
 
     PositionComponent(getAddressById(components, PositionComponentID)).set(entityId, coord);
