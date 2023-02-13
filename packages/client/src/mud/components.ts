@@ -11,6 +11,7 @@ export const components = {
     {
       width: Type.Number,
       height: Type.Number,
+      terrain: Type.String,
     },
     {
       id: 'MapConfig',
@@ -30,6 +31,11 @@ export const components = {
   Movable: defineBoolComponent(world, {
     metadata: {
       contractId: 'component.Movable',
+    },
+  }),
+  Obstruction: defineBoolComponent(world, {
+    metadata: {
+      contractId: 'component.Obstruction',
     },
   }),
 }

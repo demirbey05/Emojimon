@@ -3,10 +3,11 @@ import { useComponentValueStream } from '@latticexyz/std-client'
 import { uuid } from '@latticexyz/utils'
 import { useMUD } from '../MUDContext'
 import { useMapConfig } from './useMapConfig'
+import { Has, HasValue, runQuery } from '@latticexyz/recs'
 
 export const useMovement = () => {
   const {
-    components: { Position },
+    components: { Position, Obstruction },
     systems,
     playerEntity,
   } = useMUD()
@@ -19,6 +20,15 @@ export const useMovement = () => {
     async (x: number, y: number) => {
       const wrappedX = (x + width) % width
       const wrappedY = (y + height) % height
+
+      const obstructed = runQuery([
+        Has(Obstruction),
+        HasValue(Position, { x: wrappedX, y: wrappedY }),
+      ])
+      if (obstructed.size > 0) {
+        console.warn('cannot move to obstructed space')
+        return
+      }
       const positionId = uuid()
       Position.addOverride(positionId, {
         entity: playerEntity,
@@ -32,7 +42,7 @@ export const useMovement = () => {
         Position.removeOverride(positionId)
       }
     },
-    [Position, playerEntity, systems, width, height],
+    [Position, playerEntity, systems, width, height, Obstruction],
   )
 
   const moveBy = useCallback(

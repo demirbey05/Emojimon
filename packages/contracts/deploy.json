@@ -1,8 +1,18 @@
 {
-  "components": ["PositionComponent", "MovableComponent", "PlayerComponent", "MapConfigComponent"],
+  "components": [
+    "PositionComponent",
+    "MovableComponent",
+    "PlayerComponent",
+    "MapConfigComponent",
+    "ObstructionComponent"
+  ],
   "systems": [
     { "name": "MoveSystem", "writeAccess": ["PositionComponent"] },
     { "name": "JoinGameSystem", "writeAccess": ["MovableComponent", "PlayerComponent", "PositionComponent"] },
-    { "name": "InitSystem", "writeAccess": ["MapConfigComponent"], "initialize": "new bytes(0)" }
+    {
+      "name": "InitSystem",
+      "writeAccess": ["MapConfigComponent", "PositionComponent", "ObstructionComponent"],
+      "initialize": "new bytes(0)"
+    }
   ]
 }
